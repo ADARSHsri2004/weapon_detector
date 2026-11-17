@@ -30,6 +30,7 @@ export default function Home() {
       const osc = ctx.createOscillator();
       osc.connect(ctx.destination);
       osc.frequency.value = 880;
+      osc.onended = () => ctx.close();
       osc.start();
       osc.stop(ctx.currentTime + 0.3);
     });
@@ -45,9 +46,16 @@ export default function Home() {
     <main className="min-h-screen bg-gray-950 text-white p-6">
       {/* Alert banner */}
       {alert && (
-        <div className="fixed top-0 left-0 w-full bg-red-600 text-white text-center py-3 text-lg font-bold animate-pulse z-50">
-          ⚠ WEAPON DETECTED — ALERT TRIGGERED
-        </div>
+        <>
+          <div
+            role="alert"
+            className="fixed top-0 left-0 w-full bg-red-600 text-white text-center py-3 text-lg font-bold animate-pulse z-50"
+          >
+            ⚠ WEAPON DETECTED — ALERT TRIGGERED
+          </div>
+          {/* Spacer so the banner doesn't cover the header */}
+          <div aria-hidden="true" className="h-12" />
+        </>
       )}
 
       {/* Header */}
@@ -56,17 +64,19 @@ export default function Home() {
           <h1 className="text-2xl font-bold tracking-wide">Smart Surveillance System</h1>
           <p className="text-gray-400 text-sm mt-1">Real-Time Weapon Detection Dashboard</p>
         </div>
-        <div className="flex items-center gap-2">
-          <div className={`w-3 h-3 rounded-full ${connected ? "bg-green-400" : "bg-red-500"}`} />
+        <div className="flex items-center gap-2" aria-live="polite">
+          <div aria-hidden="true" className={`w-3 h-3 rounded-full ${connected ? "bg-green-400" : "bg-red-500"}`} />
           <span className="text-sm text-gray-400">{connected ? "Live" : "Disconnected"}</span>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         <div className="bg-gray-900 rounded-xl p-5 border border-gray-800">
           <p className="text-gray-400 text-sm">Total Detections</p>
-          <p className="text-4xl font-bold mt-1 text-red-400">{detections.length}</p>
+          <p className={`text-4xl font-bold mt-1 ${detections.length > 0 ? "text-red-400" : "text-white"}`}>
+            {detections.length}
+          </p>
         </div>
         <div className="bg-gray-900 rounded-xl p-5 border border-gray-800">
           <p className="text-gray-400 text-sm">Last Detected</p>
@@ -91,7 +101,7 @@ export default function Home() {
           {detections.length > 0 && (
             <button
               onClick={() => setDetections([])}
-              className="text-xs text-gray-500 hover:text-gray-300"
+              className="text-xs text-gray-400 hover:text-white rounded focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-500"
             >
               Clear
             </button>
@@ -99,22 +109,22 @@ export default function Home() {
         </div>
 
         {detections.length === 0 ? (
-          <div className="text-center py-16 text-gray-500">
+          <div className="text-center py-16 text-gray-400">
             <p className="text-lg">No detections yet</p>
             <p className="text-sm mt-1">Waiting for weapon detector feed...</p>
           </div>
         ) : (
-          <ul className="divide-y divide-gray-800 max-h-[400px] overflow-y-auto">
+          <ul role="log" aria-label="Detection events" className="divide-y divide-gray-800 max-h-[400px] overflow-y-auto scrollbar-dark">
             {detections.map((d, i) => (
               <li
-                key={i}
+                key={`${d.timestamp}-${d.label}-${i}`}
                 className="flex items-center justify-between px-5 py-4 hover:bg-gray-800 transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 rounded-full bg-red-500" />
-                  <span className="font-medium text-red-400 uppercase">{d.label}</span>
+                  <div aria-hidden="true" className="w-2 h-2 rounded-full bg-red-500" />
+                  <span className="font-medium text-red-400 uppercase tracking-[0.05em]">{d.label}</span>
                 </div>
-                <div className="flex items-center gap-6 text-sm text-gray-400">
+                <div className="flex items-center gap-4 text-sm text-gray-400 flex-wrap justify-end">
                   <span>
                     Confidence:{" "}
                     <span className="text-white">{(d.confidence * 100).toFixed(1)}%</span>
