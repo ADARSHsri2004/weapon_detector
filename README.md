@@ -25,6 +25,16 @@ The project combines deep learning, transfer learning, and OpenCV-based video pr
 
 ---
 
+## 🖥️ Full-Stack Surveillance Dashboard
+
+The detector now connects to a live web dashboard with real-time alerts.
+
+**Stack:**
+- **Backend:** Node.js + Express + Socket.io — receives detection events from Python and broadcasts to clients
+- **Frontend:** Next.js + Tailwind CSS — displays live detection log, stats, and an audio+visual alert on each detection
+
+---
+
 ## 🚀 Overview
 
 Manual monitoring of surveillance footage can be time-consuming and may cause important events to be overlooked.
@@ -267,25 +277,21 @@ Therefore, these results represent an initial baseline experiment and should not
 ## 📁 Project Structure
 
 ```text
-weapon-detection/
+weapon_detector/
 │
-├── weapon_detect.py
+├── weapon_detect.py        # Python detector (webcam + YOLO + POST to backend)
+├── weapon_detector.pt      # Trained YOLOv8 model weights
+├── README.md
 │
-├── weapon_detector.pt
+├── backend/
+│   ├── index.js            # Express + Socket.io server
+│   └── package.json
 │
-├── requirements.txt
-│
-└── README.md
+└── frontend/
+    ├── app/
+    │   └── page.tsx        # Next.js dashboard with live alerts
+    └── package.json
 ```
-
-### File Descriptions
-
-| File | Description |
-|---|---|
-| `weapon_detect.py` | Main Python application for webcam-based detection |
-| `weapon_detector.pt` | Custom-trained YOLOv8 model weights |
-| `requirements.txt` | Python dependencies |
-| `README.md` | Project documentation |
 
 The training notebook and dataset are maintained separately from the application.
 
@@ -352,23 +358,31 @@ The application expects this exact filename.
 
 ## ▶️ Running the Application
 
-Once dependencies and model weights are installed, execute:
+Run each in a separate terminal:
 
+**Terminal 1 — Backend:**
 ```bash
-python weapon_detect.py
+cd backend
+node index.js
 ```
 
-The application will:
+**Terminal 2 — Frontend:**
+```bash
+cd frontend
+npm run dev
+```
 
-1. Load the trained YOLOv8 model.
-2. Initialize the webcam.
-3. Capture frames continuously.
-4. Run object detection on each frame.
-5. Draw bounding boxes around detected objects.
-6. Display class names and confidence scores.
-7. Display an alert when detections occur.
+**Terminal 3 — Detector:**
+```bash
+source venv/bin/activate
+python3 weapon_detect.py
+```
 
-Press **Q** to close the detection window.
+Open **http://localhost:3000** to see the live dashboard.
+
+When a weapon is detected, the Python script POSTs to the backend, which broadcasts via Socket.io to the dashboard — triggering a visual banner and audio beep alert.
+
+Press **Q** in the detector window to stop.
 
 ### Confidence Threshold
 

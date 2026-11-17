@@ -1,8 +1,10 @@
 
 from ultralytics import YOLO
 import cv2
+import requests
 
 MODEL_PATH = "weapon_detector.pt"
+BACKEND_URL = "http://localhost:4000/detection"
 
 # Lower threshold for initial debugging
 CONF = 0.70
@@ -61,6 +63,12 @@ def main():
                 label = names.get(cls_id, str(cls_id))
 
                 weapon_count += 1
+
+                # Notify backend (fire-and-forget, ignore errors)
+                try:
+                    requests.post(BACKEND_URL, json={"label": label, "confidence": confidence}, timeout=0.5)
+                except Exception:
+                    pass
 
                 # Red bounding box
                 color = (0, 0, 255)
