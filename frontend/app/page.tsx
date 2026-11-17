@@ -9,7 +9,7 @@ type Detection = {
   timestamp: string;
 };
 
-const socket = io("http://localhost:4000");
+const socket = io("https://weapon-detector-iqcm.onrender.com");
 
 export default function Home() {
   const [detections, setDetections] = useState<Detection[]>([]);

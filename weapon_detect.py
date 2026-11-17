@@ -4,7 +4,7 @@ import cv2
 import requests
 
 MODEL_PATH = "weapon_detector.pt"
-BACKEND_URL = "http://localhost:4000/detection"
+BACKEND_URL = "https://weapon-detector-iqcm.onrender.com/detection"
 
 # Lower threshold for initial debugging
 CONF = 0.70
